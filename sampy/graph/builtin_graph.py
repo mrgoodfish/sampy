@@ -17,6 +17,9 @@ import json
 class SquareGridWithDiag(SquareGridWithDiagTopology,
                          PeriodicAttributes,
                          AttributeFrom2DGaussianNoise):
+    """
+    todo
+    """
     def __init__(self, **kwargs):
         pass
 

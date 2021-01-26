@@ -1,8 +1,4 @@
 import numpy as np
-from graph_dynamic.utils.jit_compiled_functions import (falsify_when_condition,
-                                                        zero_when_condition,
-                                                        fill_poisson_counter,
-                                                        fill_custom_transition_counter)
 from .jit_compiled_functions import (transition_initialize_counters_of_newly_infected,
                                      transition_conditional_count_nb_agent_per_vertex,
                                      transition_falsify_when_condition

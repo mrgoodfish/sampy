@@ -3,8 +3,8 @@ from .jit_compiled_functions import conditional_count_return_full_array
 
 
 class TransmissionByContact:
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        pass
 
     def contact_contagion(self, contact_rate, position_attribute='position',
                           condition=None,

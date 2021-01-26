@@ -25,7 +25,10 @@ class BaseVertexAttributes:
         :param attr_name: string, name of the attribute
         :param value: either None, a single value, or a 1D array.
         """
-        self.df_attributes[attr_name] = value
+        if self.df_attributes.nb_rows == 0 and not isinstance(value, np.ndarray):
+            self.df_attributes[attr_name] = [value for _ in range(self.weights.shape[0])]
+        else:
+            self.df_attributes[attr_name] = value
 
     def create_vertex_attribute_from_dict(self, attr_name, dict_id_to_val, default_val=np.nan):
         """
