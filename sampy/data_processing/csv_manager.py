@@ -26,10 +26,14 @@ class CsvManager:
 
         self.nb_line_in_csv = 0
 
+        self.dict_arr = {}
+        self.dict_const = {}
+
         with open(self.path_to_csv, 'r') as f_in:
             for i, line in enumerate(f_in):
                 if i == 0:
                     self.header = line.replace('\n', '')
+                    self.extract_info_header(self.header, sep)
                     continue
                 self.nb_line_in_csv += 1
 
@@ -51,9 +55,8 @@ class CsvManager:
         for name_arr, arr in temp_dict_arr.items():
             sorted_arr = sorted(arr, key=lambda y: int(y.split('_')[-1]))
             r_dict_arr[name_arr] = [dict_col_to_index[name_col] for name_col in sorted_arr]
-        return r_dict_arr, r_dict_const
-
-
+        self.dict_arr = r_dict_arr
+        self.dict_const = r_dict_const
 
     def fill_buffer(self, nb_buffer_filled):
         self.buffer = []
