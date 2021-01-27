@@ -107,6 +107,7 @@ class BaseAgingAgent:
                                          " lines, while column " + name_first_non_cst_column + " value results in " +
                                          "creating " + str(nb_rows_added) + '.')
                 else:
+                    nb_rows_added = x.shape[0]
                     found_non_cst_col = True
                     name_first_non_cst_column = key
 
@@ -221,7 +222,7 @@ class BaseAgingAgent:
         """
         if condition is None:
             return count_nb_agent_per_vertex(self.df_population[position_attribute],
-                                             self.graph.nb_vertex)
+                                             self.graph.weights.shape[0])
         else:
             if (not isinstance(condition, np.ndarray)) or \
                (len(condition.shape) != 1) or \
@@ -231,6 +232,8 @@ class BaseAgingAgent:
                                  " of individuals.")
             return conditional_count_nb_agent_per_vertex(condition,
                                                          self.df_population[position_attribute],
-                                                         self.graph.nb_vertex)
+                                                         self.graph.weights.shape[0])
 
-
+    @property
+    def number_agents(self):
+        return self.df_population.nb_rows

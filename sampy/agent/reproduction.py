@@ -20,6 +20,14 @@ class BasicReproduction:
         self.df_population['is_pregnant'] = None
         self.df_population['current_mate'] = None
 
+        if not hasattr(self, 'dict_default_val'):
+            self.dict_default_val = {}
+        self.dict_default_val['mom_id'] = -1
+        self.dict_default_val['dad_id'] = -1
+        self.dict_default_val['gender'] = 1
+        self.dict_default_val['is_pregnant'] = False
+        self.dict_default_val['current_mate'] = -1
+
     def find_random_mate_on_position(self,
                                      prob_get_pregnant,
                                      shuffle=True,

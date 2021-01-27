@@ -77,7 +77,7 @@ class NaturalMortalityOrmMethodology:
             check_input_array(condition_count, 'condition_count', 'bool', shape=(self.df_population.nb_rows,))
 
     def natural_death_orm_methodology(self, array_death_proba_male, array_death_proba_female,
-                                      shuffle=False,
+                                      shuffle=True,
                                       permutation_shuffle=None,
                                       condition=None,
                                       condition_count=None,
@@ -112,7 +112,7 @@ class NaturalMortalityOrmMethodology:
                                        male agent whose age is 'i'.
         :param array_death_proba_female: 1D array of float where array_death_proba_female[i] is the proba of death of a
                                          female agent whose age is 'i'.
-        :param shuffle: optional, boolean, default False.
+        :param shuffle: optional, boolean, default True.
         :param permutation_shuffle: optional, 1D array of int, default None. Permutation used for the shuffle. If
                                     shuffle is activated and no permutation is provided, then one is generated using
                                     numpy.random.permutation
@@ -189,6 +189,14 @@ class NaturalMortalityOrmMethodology:
             return death_df
         else:
             self.df_population = self.df_population[arr_survive]
+
+    def kill_too_old(self, limit_age, age_attribute='age'):
+        """
+
+        :param limit_age:
+        :return:
+        """
+        self.df_population = self.df_population[self.df_population[age_attribute] < limit_age]
 
 
 class NaturalMortalityWithExponentialLaw:

@@ -33,12 +33,14 @@ class CsvManager:
             for i, line in enumerate(f_in):
                 if i == 0:
                     self.header = line.replace('\n', '')
-                    self.extract_info_header(self.header, sep)
+                    self.extract_info_header()
                     continue
                 self.nb_line_in_csv += 1
+                if i <= self.buffer_size:
+                    self.buffer.append(line.replace('\n', ''))
 
-    def extract_info_header(self, header, sep):
-        list_header = header.split(sep)
+    def extract_info_header(self):
+        list_header = self.header.split(self.sep)
         dict_col_to_index = {col_name: ind for ind, col_name in enumerate(list_header)}
         r_dict_const = {}
         temp_dict_arr = {}
@@ -50,7 +52,7 @@ class CsvManager:
                 except KeyError:
                     temp_dict_arr[name_param] = [col_name]
             else:
-                r_dict_const[name_param] = dict_col_to_index[col_name]
+                r_dict_const[col_name] = dict_col_to_index[col_name]
         r_dict_arr = {}
         for name_arr, arr in temp_dict_arr.items():
             sorted_arr = sorted(arr, key=lambda y: int(y.split('_')[-1]))
