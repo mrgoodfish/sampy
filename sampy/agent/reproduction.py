@@ -143,9 +143,8 @@ class BasicReproduction:
         df_children = DataFrameXS()
         df_children[mother_attribute] = np.repeat(df_selected_female[id_attribute], arr_nb_baby, axis=0)
         df_children[father_attribute] = np.repeat(df_selected_female[mate_attribute], arr_nb_baby, axis=0)
-        pos = np.repeat(df_selected_female[position_attribute], arr_nb_baby, axis=0)
-        df_children[position_attribute] = pos
-        df_children[territory_attribute] = pos
+        df_children[position_attribute] = np.repeat(df_selected_female[position_attribute], arr_nb_baby, axis=0)
+        df_children[territory_attribute] = np.repeat(df_selected_female[territory_attribute], arr_nb_baby, axis=0)
 
         # defines the gender of the offsprings
         gender = 1 * (np.random.uniform(0, 1, (df_children.shape[0],)) >= 0.5)

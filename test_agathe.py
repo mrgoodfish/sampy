@@ -22,7 +22,7 @@ my_graph.create_vertex_attribute('K', 10.)
 
 # agent
 agents = BasicMammal(graph=my_graph)
-print(agents.df_population.list_col_name)
+# print(agents.df_population.list_col_name)
 
 # # disease
 # disease = ContactCustomProbTransitionPermanentImmunity(disease_name='rabies', host=agents)
@@ -39,7 +39,7 @@ agents.add_agents(dict_new_agents)
 
 
 list_count = []
-nb_year_simu = 50
+nb_year_simu = 100
 for i in range(nb_year_simu * 52 + 1):
 
     if i % 52 == 0:
@@ -52,8 +52,15 @@ for i in range(nb_year_simu * 52 + 1):
 
     agents.kill_too_old(52 * 6 - 1)
     agents.natural_death_orm_methodology(ARR_PROB_DEATH_MALE, ARR_PROB_DEATH_FEMALE)
+    agents.kill_children_whose_mother_is_dead(11)
 
-    # agents.mov_around_territory(0.5)
+    agents.mov_around_territory(0.8)
+
+    if (agents.df_population['position'] == -1).sum() > 0 or (agents.df_population['territory'] == -1).sum() > 0:
+        print((agents.df_population['position'] == -1).sum(), (agents.df_population['territory'] == -1).sum())
+        print(i, i // 52, i % 52)
+        # print(agents.df_population['territory'])
+        break
 
     if i % 52 == 15:
         agents.find_random_mate_on_position(1., position_attribute='territory')
@@ -64,4 +71,4 @@ for i in range(nb_year_simu * 52 + 1):
         agents.change_territory(condition=can_move)
 
 # agents.save_population_to_csv("C:/post_doc/courses/example_output_sampy/Agathe/final_pop.csv", sep=';', index=False)
-counts_to_csv(list_count, my_graph, "C:/post_doc/courses/example_output_sampy/Agathe/annual_count_per_cell.csv")
+# counts_to_csv(list_count, my_graph, "C:/post_doc/courses/example_output_sampy/Agathe/annual_count_per_cell.csv")

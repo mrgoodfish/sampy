@@ -193,9 +193,10 @@ def movement_change_territory_and_position_condition(territory, position, condit
     for i in range(territory.shape[0]):
         if condition[i]:
             for j in range(weights.shape[1]):
-                if rand[counter_rand] <= weights[territory[i]][j]:
-                    territory[i] = connections[territory[i]][j]
+                if rand[counter_rand] < weights[territory[i]][j]:
+                    # very important to update position first
                     position[i] = connections[territory[i]][j]
+                    territory[i] = connections[territory[i]][j]
                     break
             counter_rand += 1
 
@@ -205,8 +206,8 @@ def movement_change_territory_and_position(territory, position, rand, connection
     for i in range(territory.shape[0]):
         for j in range(weights.shape[1]):
             if rand[i] <= weights[territory[i]][j]:
-                territory[i] = connections[territory[i]][j]
                 position[i] = connections[territory[i]][j]
+                territory[i] = connections[territory[i]][j]
                 break
 
 
@@ -228,9 +229,10 @@ def movement_mov_around_territory(territory, position, bool_mov, rand, connectio
     for i in range(territory.shape[0]):
         if bool_mov[i]:
             for j in range(weights.shape[1]):
-                if rand[counter_rand] <= weights[territory[i]][j]:
+                if rand[counter_rand] <= weights[territory[i]][j] and connections[territory[i]][j] != -1:
                     position[i] = connections[territory[i]][j]
-                counter_rand += 1
+                    counter_rand += 1
+                    break
 
 # ---------------------------------------------------------------------------------------------------------------------
 # spherical random walk section
