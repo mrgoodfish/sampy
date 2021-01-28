@@ -479,4 +479,4 @@ class DataFrameXS:
         'to_csv' method. This is obviously inefficient, therefore this method should not be called regularly in a sim.
         """
         df = self.get_as_pandas_dataframe()
-        df.to_csv(path, sep=sep, **kwargs)
+        df.to_csv(path, sep=sep, index=False, **kwargs)

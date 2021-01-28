@@ -56,12 +56,6 @@ for i in range(nb_year_simu * 52 + 1):
 
     agents.mov_around_territory(0.8)
 
-    if (agents.df_population['position'] == -1).sum() > 0 or (agents.df_population['territory'] == -1).sum() > 0:
-        print((agents.df_population['position'] == -1).sum(), (agents.df_population['territory'] == -1).sum())
-        print(i, i // 52, i % 52)
-        # print(agents.df_population['territory'])
-        break
-
     if i % 52 == 15:
         agents.find_random_mate_on_position(1., position_attribute='territory')
     if i % 52 == 22:
