@@ -1,4 +1,5 @@
 from sampy.agent.base import BaseAgingAgent
+from sampy.agent.builtin_agent import BasicMammal
 from sampy.agent.jit_compiled_functions import (count_nb_agent_per_vertex,
                                                 conditional_count_nb_agent_per_vertex,
                                                 mortality_natural_death_orm_methodology,
@@ -7,8 +8,7 @@ from sampy.agent.jit_compiled_functions import (count_nb_agent_per_vertex,
                                                 mortality_natural_death_orm_methodology_both_cond,
                                                 movement_change_territory_and_position,
                                                 movement_change_territory_and_position_condition,
-                                                movement_mov_around_territory,
-                                                movement_mov_around_territory_with_condition)
+                                                movement_mov_around_territory)
 from sampy.pandas_xs.pandas_xs import DataFrameXS
 from sampy.utils.decorators import use_debug_mode
 import numpy as np
@@ -85,7 +85,7 @@ class TestBaseAgingAgent(unittest.TestCase):
 
     def test_count_agents_per_vertex(self):
         class FakeGraph:
-            nb_vertex = 5
+            weights = np.array([0, 0, 0, 0, 0])
         x = BaseAgingAgent(graph=FakeGraph())
         x.add_attribute('position', def_value=0)
         x.add_agents({'age': 0, 'position': [0, 0, 0, 1, 1, 3, 4, 3, 2, 0, 2]})
@@ -116,6 +116,13 @@ class TestBaseAgingAgent(unittest.TestCase):
 
         self.assertEqual(count_cond.sum(), 7)
         self.assertTrue((count_cond == np.array([0, 2, 2, 2, 1])).all())
+
+
+class TestBuiltInAgentBasicMammal(unittest.TestCase):
+    def test_object_creation(self):
+        with self.assertRaises(ValueError):
+            x = BasicMammal()
+        list_expected_col = ['col_id', 'age', 'position', 'territory', 'gender', 'mom_id', 'dad_id', 'is_pregnant']
 
 
 class TestJitCompiledFuncAgent(unittest.TestCase):
