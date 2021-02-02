@@ -21,7 +21,7 @@ class NaturalMortalityOrmMethodology:
         if not hasattr(self, 'df_population'):
             self.df_population = DataFrameXS()
 
-    def _sampy_test_natural_death_orm_methodology(self, array_death_proba_male, array_death_proba_female,
+    def _sampy_debug_natural_death_orm_methodology(self, array_death_proba_male, array_death_proba_female,
                                                   shuffle=False,
                                                   permutation_shuffle=None,
                                                   condition=None,

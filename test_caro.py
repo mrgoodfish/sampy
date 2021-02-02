@@ -41,9 +41,8 @@ for i in range(nb_year * 52 + 1):
         print('year', i // 52, ':', agents.number_agents)
         old = agents.df_population['age'] > 52
         list_count_vects_old.append(agents.count_pop_per_vertex(position_attribute='territory', condition=old))
-        agents.save_population_to_csv("C:/post_doc/courses/example_output_sampy/Caro/pop_" + str(i//52) + "y_test.csv",
-                                      sep=';')
-
+        # agents.save_population_to_csv("C:/post_doc/courses/example_output_sampy/Caro/pop_" + str(i//52) + "y_test.csv",
+        #                               sep=';')
 
     agents.tick()
     my_graph.tick()
@@ -61,4 +60,10 @@ for i in range(nb_year * 52 + 1):
     if i % 52 == 40:
         can_move = agents.df_population['age'] > 11
         agents.change_territory(condition=can_move)
+        mov_again = can_move & (np.random.uniform(0, 1, agents.number_agents) < 0.5)
+        agents.change_territory(condition=mov_again)
 
+
+# parameters = csv_manager(chemin, owuehfoueh)
+# param = parameters.get_param()
+# param.PROB_DEATH_MALE

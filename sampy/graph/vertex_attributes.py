@@ -9,7 +9,23 @@ from ..pandas_xs.pandas_xs import DataFrameXS
 
 class BaseVertexAttributes:
     def __init__(self, **kwargs):
-        self.df_attributes = DataFrameXS()
+        if not hasattr(self, 'df_attributes'):
+            self.df_attributes = DataFrameXS()
+
+    def _sampy_debug_create_vertex_attribute(self, attr_name, value):
+        if not isinstance(attr_name, str):
+            raise ValueError("the name of a vertex attribute should be a string.")
+        arr = np.array(value)
+        if len(arr.shape) != 0:
+            if len(arr.shape) > 1:
+                raise ValueError('Shape of provided array for graph attribute ' + attr_name + ' is ' + str(arr.shape) +
+                                 ', while Sampy expects an array of shape (' + str(self.weights.shape[0]) +
+                                 ',).')
+            if arr.shape[0] != self.weights.shape[0]:
+                raise ValueError('Provided array for graph attribute ' + attr_name + ' has ' +
+                                 str(arr.shape[0]) + 'elements, while the graph has ' + str(self.weights.shape[0]) +
+                                 'vertices. Those numbers should be the same.')
+
 
     def create_vertex_attribute(self, attr_name, value):
         """
@@ -25,10 +41,20 @@ class BaseVertexAttributes:
         :param attr_name: string, name of the attribute
         :param value: either None, a single value, or a 1D array.
         """
-        if self.df_attributes.nb_rows == 0 and not isinstance(value, np.ndarray):
+        if self.df_attributes.nb_rows == 0 and len(np.array(value).shape) == 0:
             self.df_attributes[attr_name] = [value for _ in range(self.weights.shape[0])]
         else:
             self.df_attributes[attr_name] = value
+
+    def _sampy_debug_create_vertex_attribute_from_dict(self, attr_name, dict_id_to_val, default_val=np.nan):
+        if (not hasattr(dict_id_to_val, 'items')) or (not hasattr(dict_id_to_val.items, '__call__')):
+            raise ValueError('the method create_vertex_attribute_from_dict expects a dictionnary-like object, ' +
+                             'which has a method \'items\'.')
+        if not isinstance(attr_name, str):
+            raise ValueError("the name of a vertex attribute should be a string.")
+        for key, _ in dict_id_to_val.items():
+            if key not in self.dict_cell_id_to_ind:
+                raise ValueError(str(key) + ' is not the id of any vertex in the graph.')
 
     def create_vertex_attribute_from_dict(self, attr_name, dict_id_to_val, default_val=np.nan):
         """
@@ -41,7 +67,7 @@ class BaseVertexAttributes:
         :param default_val: optional, default np.nan. Value used for the vertexes for which an attribute value is not
                             provided.
         """
-        arr_attr = np.full((self.nb_vertex,), default_val)
+        arr_attr = np.full((self.number_vertices,), default_val)
         for key, val in dict_id_to_val.items():
             arr_attr[self.dict_cell_id_to_ind[key]] = val
         self.df_attributes[attr_name] = arr_attr

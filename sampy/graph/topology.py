@@ -34,6 +34,10 @@ class BaseTopology:
         for method in self.on_ticker:
             getattr(self, method)()
 
+    @property
+    def number_vertices(self):
+        return self.weights.shape[0]
+
 
 class SquareGridWithDiagTopology(BaseTopology):
     def __init__(self, shape=None, **kwargs):
