@@ -14,7 +14,7 @@ class BaseVertexAttributes:
 
     def _sampy_debug_create_vertex_attribute(self, attr_name, value):
         if not isinstance(attr_name, str):
-            raise ValueError("the name of a vertex attribute should be a string.")
+            raise TypeError("the name of a vertex attribute should be a string.")
         arr = np.array(value)
         if len(arr.shape) != 0:
             if len(arr.shape) > 1:
@@ -51,21 +51,26 @@ class BaseVertexAttributes:
             raise ValueError('the method create_vertex_attribute_from_dict expects a dictionnary-like object, ' +
                              'which has a method \'items\'.')
         if not isinstance(attr_name, str):
-            raise ValueError("the name of a vertex attribute should be a string.")
+            raise TypeError("the name of a vertex attribute should be a string.")
         for key, _ in dict_id_to_val.items():
             if key not in self.dict_cell_id_to_ind:
                 raise ValueError(str(key) + ' is not the id of any vertex in the graph.')
 
-    def create_vertex_attribute_from_dict(self, attr_name, dict_id_to_val, default_val=np.nan):
+    def create_vertex_attribute_from_dict(self, attr_name, dict_id_to_val, default_val):
         """
         Creates a new vertex attribute and populates its values using a dictionary-like object, whose keys are id of
-        vertices, and values the corresponding attribute values.
+        vertices, and values the corresponding attribute values. Note that you can specify a default value for the
+        vertices not appearing in the dictionary.
+
+        IMPORTANT: first, the method creates an array filled with the default value, and then replace the values in the
+                   array using the dictionary. Therefore, the dtype of the attribute will be defined using the default
+                   value. Thus, the user should either chose a default value with appropriate dtype, or change the
+                   type of the attribute after creating the attribute.
 
         :param attr_name: string, name of the attribute.
         :param dict_id_to_val: Dictionary like object, whose keys are id of vertices, and values the corresponding
                                attribute value.
-        :param default_val: optional, default np.nan. Value used for the vertexes for which an attribute value is not
-                            provided.
+        :param default_val: Value used for the vertices for which an attribute value is not provided.
         """
         arr_attr = np.full((self.number_vertices,), default_val)
         for key, val in dict_id_to_val.items():

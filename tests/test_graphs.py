@@ -118,7 +118,7 @@ class TestBaseVertexAttributes(unittest.TestCase):
         current_object.connections = np.full((10, 2), 0)
         current_object.weights = np.full((10, 2), 0)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             current_object.create_vertex_attribute(17, [{} for _ in range(10)])
         with self.assertRaises(ValueError):
             current_object.create_vertex_attribute('test', [{} for _ in range(10)])
@@ -149,13 +149,45 @@ class TestBaseVertexAttributes(unittest.TestCase):
         current_object.dict_cell_id_to_ind = {str(i): i for i in range(10)}
         current_object.number_vertices = 10
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             current_object.create_vertex_attribute_from_dict(17, {})
         with self.assertRaises(ValueError):
             current_object.create_vertex_attribute_from_dict('test', [])
         with self.assertRaises(ValueError):
             current_object.create_vertex_attribute_from_dict('test', {1: 1})
 
-        current_object.create_vertex_attribute_from_dict('test', {str(i): i+1 for i in range(8)}, default_val=-1)
+        current_object.create_vertex_attribute_from_dict('test', {str(i): i+1 for i in range(8)}, -1)
         self.assertTrue('test' in current_object.df_attributes.dict_colname_to_index)
         self.assertTrue((current_object.df_attributes['test'] == np.array([1, 2, 3, 4, 5, 6, 7, 8, -1, -1])).all())
+
+        current_object.create_vertex_attribute_from_dict('test2', {'3': 2., '7': 3.}, -1.)
+        self.assertTrue('test2' in current_object.df_attributes.dict_colname_to_index)
+        self.assertTrue((current_object.df_attributes['test2'] == np.array([-1., -1., -1., 2., -1., -1., -1.,
+                                                                            3., -1., -1.])).all())
+
+        current_object.create_vertex_attribute_from_dict('test', {str(i): i for i in range(10)}, 0)
+        self.assertTrue('test' in current_object.df_attributes.dict_colname_to_index)
+        self.assertTrue((current_object.df_attributes['test'] == np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])).all())
+
+    def test_change_type(self):
+        current_object = BaseVertexAttributes()
+        current_object.connections = np.full((10, 2), 0)
+        current_object.weights = np.full((10, 2), 0)
+        current_object.dict_cell_id_to_ind = {str(i): i for i in range(10)}
+        current_object.number_vertices = 10
+
+        current_object.create_vertex_attribute('test', 1)
+
+        with self.assertRaises(TypeError):
+            current_object.change_type_attribute(1, 'int8')
+        with self.assertRaises(KeyError):
+            current_object.change_type_attribute('wrong_name', 'int8')
+        with self.assertRaises(ValueError):
+            current_object.change_type_attribute('test', 'object')
+
+        current_object.change_type_attribute('test', 'int8')
+        self.assertEqual(str(current_object.df_attributes['test'].dtype), 'int8')
+
+        current_object.create_vertex_attribute('test2', [i % 2 for i in range(10)])
+        current_object.change_type_attribute('test2', 'bool')
+        self.assertTrue((current_object.df_attributes['test2'] == np.array([i % 2 == 1 for i in range(10)])).all())
