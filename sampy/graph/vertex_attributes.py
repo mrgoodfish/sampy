@@ -86,12 +86,13 @@ class BaseVertexAttributes:
         self.df_attributes.change_type(attr_name, str_type)
 
 
-class PeriodicAttributes(BaseVertexAttributes):
+class PeriodicAttributes:
     """
-    Class that adds a method to define periodically varying arguments.
+    Class that adds methods to define periodically varying arguments.
     """
     def __init__(self, **kwargs):
-        pass
+        if not hasattr(self, 'df_attributes'):
+            self.df_attributes = DataFrameXS()
 
     def update_periodic_attribute(self, attr_name, amplitude, period, phase, intercept, time=None, condition=None):
         """

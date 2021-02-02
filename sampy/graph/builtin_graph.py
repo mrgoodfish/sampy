@@ -2,7 +2,7 @@ from .topology import (TopologiesFromFiles,
                        IcosphereTopology,
                        SquareGridWithDiagTopology,
                        SquareGridTopology)
-from .vertex_attributes import PeriodicAttributes
+from .vertex_attributes import PeriodicAttributes, BaseVertexAttributes
 from .procedural import AttributeFrom2DGaussianNoise
 from ..utils.decorators import sampy_class
 
@@ -15,6 +15,7 @@ import json
 
 @sampy_class
 class SquareGridWithDiag(SquareGridWithDiagTopology,
+                         BaseVertexAttributes,
                          PeriodicAttributes,
                          AttributeFrom2DGaussianNoise):
     """

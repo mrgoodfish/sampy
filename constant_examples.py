@@ -1,7 +1,7 @@
 import numpy as np
 
 
-# death probas
+# just writing the death prob array here, in order to keep the example scripts light
 ARR_DEATH = []
 for i in range(52):
     ARR_DEATH.append(0.6 / 52)

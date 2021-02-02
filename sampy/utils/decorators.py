@@ -19,7 +19,6 @@ def sampy_class(cls):
             ordered_init_call = []
             for i, sub_cls in enumerate(type(self).mro()):
                 if i == 0:
-                    ordered_init_call.append(sub_cls)
                     continue
                 if sub_cls.__name__.startswith('Base'):
                     ordered_init_call.append(sub_cls)
@@ -30,13 +29,12 @@ def sampy_class(cls):
                     ordered_init_call.append(sub_cls)
 
             for i, sub_cls in enumerate(ordered_init_call):
-                if i == 0:
-                    init(self, **kwargs)
-                    continue
                 if sub_cls.__name__ == 'object':
                     sub_cls.__init__(self)
                 else:
                     sub_cls.__init__(self, **kwargs)
+
+            init(self, **kwargs)
 
         return sampy_init
 
