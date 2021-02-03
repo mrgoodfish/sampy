@@ -83,3 +83,7 @@ class GraphFromORMxml(BaseTopology,
 
     def get_super_cell(self, name_super_cell):
         return self.df_attributes['super_cell'] == self.dict_super_cell[name_super_cell]['index']
+
+    @property
+    def list_super_cell_names(self):
+        return [super_cell_name for super_cell_name in self.dict_super_cell]
