@@ -22,14 +22,14 @@ class NaturalMortalityOrmMethodology:
             self.df_population = DataFrameXS()
 
     def _sampy_debug_natural_death_orm_methodology(self, array_death_proba_male, array_death_proba_female,
-                                                  shuffle=False,
-                                                  permutation_shuffle=None,
-                                                  condition=None,
-                                                  condition_count=None,
-                                                  gender_attribute='gender',
-                                                  age_attribute='age',
-                                                  position_attribute='position',
-                                                  k_factor_attribute='K'):
+                                                   shuffle=False,
+                                                   permutation_shuffle=None,
+                                                   condition=None,
+                                                   condition_count=None,
+                                                   gender_attribute='gender',
+                                                   age_attribute='age',
+                                                   position_attribute='position',
+                                                   k_factor_attribute='K'):
         if self.df_population.nb_rows == 0:
             return
 

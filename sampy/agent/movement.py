@@ -2,7 +2,9 @@ import numpy as np
 from .jit_compiled_functions import (movement_change_territory_and_position,
                                      movement_change_territory_and_position_condition,
                                      movement_mov_around_territory_fill_bool_mov_using_condition,
-                                     movement_mov_around_territory)
+                                     movement_mov_around_territory,
+                                     movement_dispersion_with_varying_nb_of_steps,
+                                     movement_dispersion_with_varying_nb_of_steps_condition)
 from ..pandas_xs.pandas_xs import DataFrameXS
 
 
@@ -65,3 +67,36 @@ class TerritorialMovementWithoutResistance:
         movement_mov_around_territory(self.df_population[territory_attribute], self.df_population[position_attribute],
                                       bool_mov, rand, self.graph.connections, self.graph.weights)
 
+    def dispersion_with_varying_nb_of_steps(self, arr_nb_steps, arr_prob,
+                                            condition=None,
+                                            territory_attribute='territory',
+                                            position_attribute='position'
+                                            ):
+        """
+        todo
+        :param arr_nb_steps:
+        :param arr_prob:
+        :param condition:
+        :param territory_attribute:
+        :param position_attribute:
+        """
+        if self.df_population.nb_rows == 0:
+            return
+        prob = arr_prob.astype('float64')
+        prob = prob / prob.sum()
+        if condition is not None:
+            # get number of steps
+            arr_nb_steps = np.random.choice(arr_nb_steps, condition.sum(), p=prob)
+        else:
+            arr_nb_steps = np.random.choice(arr_nb_steps, self.df_population.nb_rows, p=prob)
+        rand = np.random.uniform(0, 1, arr_nb_steps.sum())
+        if condition is None:
+            movement_dispersion_with_varying_nb_of_steps(self.df_population[territory_attribute],
+                                                         self.df_population[position_attribute],
+                                                         rand, arr_nb_steps, self.graph.connections, self.graph.weights)
+        else:
+            movement_dispersion_with_varying_nb_of_steps_condition(self.df_population[territory_attribute],
+                                                                   self.df_population[position_attribute],
+                                                                   condition,
+                                                                   rand, arr_nb_steps, self.graph.connections,
+                                                                   self.graph.weights)

@@ -231,8 +231,41 @@ def movement_mov_around_territory(territory, position, bool_mov, rand, connectio
             for j in range(weights.shape[1]):
                 if rand[counter_rand] <= weights[territory[i]][j] and connections[territory[i]][j] != -1:
                     position[i] = connections[territory[i]][j]
-                    counter_rand += 1
                     break
+            counter_rand += 1
+
+
+@nb.njit
+def movement_dispersion_with_varying_nb_of_steps_condition(territory, position, condition, rand, arr_nb_steps,
+                                                           connections, weights):
+    counter_rand = 0
+    counter_arr_steps = 0
+    for i in range(territory.shape[0]):
+        if condition[i]:
+            for _ in range(arr_nb_steps[counter_arr_steps]):
+                for j in range(weights.shape[1]):
+                    if rand[counter_rand] <= weights[territory[i]][j]:
+                        position[i] = connections[territory[i]][j]
+                        territory[i] = connections[territory[i]][j]
+                        break
+                counter_rand += 1
+            counter_arr_steps += 1
+
+
+@nb.njit
+def movement_dispersion_with_varying_nb_of_steps(territory, position, rand, arr_nb_steps,
+                                                 connections, weights):
+    counter_rand = 0
+    counter_arr_steps = 0
+    for i in range(territory.shape[0]):
+        for _ in range(arr_nb_steps[counter_arr_steps]):
+            for j in range(weights.shape[1]):
+                if rand[counter_rand] <= weights[territory[i]][j]:
+                    position[i] = connections[territory[i]][j]
+                    territory[i] = connections[territory[i]][j]
+                    break
+            counter_rand += 1
+        counter_arr_steps += 1
 
 # ---------------------------------------------------------------------------------------------------------------------
 # spherical random walk section
