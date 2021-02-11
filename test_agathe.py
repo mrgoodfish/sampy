@@ -4,6 +4,7 @@ from sampy.pandas_xs.pandas_xs import DataFrameXS
 from sampy.graph.builtin_graph import SquareGridWithDiag
 from sampy.agent.builtin_agent import BasicMammal
 from sampy.disease.single_species.builtin_disease import ContactCustomProbTransitionPermanentImmunity
+from sampy.graph.graph_from_ORM_xml import GraphFromORMxml
 
 import numpy as np
 
@@ -17,8 +18,8 @@ from sampy.data_processing.write_file import counts_to_csv
 # use_debug_mode(BasicMammal)
 
 # graph
-my_graph = SquareGridWithDiag(shape=(100, 100))
-my_graph.create_vertex_attribute('K', 10.)
+my_graph = GraphFromORMxml(path_to_xml='C:/post_doc/data/orm_related_data/xml_landscapes/emily/ORMlandscape.xml')
+# my_graph.create_vertex_attribute('K', 10.)
 
 # agent
 agents = BasicMammal(graph=my_graph)
@@ -62,7 +63,9 @@ for i in range(nb_year_simu * 52 + 1):
         agents.create_offsprings_custom_prob(np.array([4, 5, 6, 7, 8, 9]), np.array([0.1, 0.2, 0.2, 0.2, 0.2, 0.1]))
     if i % 52 == 40:
         can_move = agents.df_population['age'] > 11
-        agents.change_territory(condition=can_move)
+        agents.dispersion_with_varying_nb_of_steps(np.array([1, 2, 3, 4]),
+                                                   np.array([.25, .25, .25, .25]),
+                                                   condition=can_move)
 
 # agents.save_population_to_csv("C:/post_doc/courses/example_output_sampy/Agathe/final_pop.csv", sep=';', index=False)
 # counts_to_csv(list_count, my_graph, "C:/post_doc/courses/example_output_sampy/Agathe/annual_count_per_cell.csv")

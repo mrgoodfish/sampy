@@ -1,33 +1,33 @@
-class ParamManager:
-    def __init__(self, header, line_values, dict_type, sep):
-        names = header.split(sep)
-        values = line_values.split(sep)
+import numpy as np
 
+
+class ParamManager:
+    def __init__(self, names, values):
         for name, value in zip(names, values):
-            if name in dict_type:
-                setattr(self, name, dict_type[name](value))
-            else:
-                setattr(self, name, value)
+            setattr(self, name, value)
 
 
 class CsvManager:
     """
     Class used to manage parameters stored in a CSV. This class comes with a buffer, which enable the
     """
-    def __init__(self, path_to_csv, sep, dict_types={}, buffer_size=1000):
+    def __init__(self, path_to_csv, sep, dict_types={}, buffer_size=1000, nb_cores=1, id_process=0):
         self.path_to_csv = path_to_csv
         self.sep = sep
         self.dict_types = dict_types
 
         self.buffer_size = buffer_size
-        self.nb_buffer_used = 0
+        self.nb_line_consumed = 0
         self.buffer = []
         self.counter_buffer = 0
 
-        self.nb_line_in_csv = 0
+        self.nb_usable_lines_in_csv = 0
 
         self.dict_arr = {}
         self.dict_const = {}
+
+        self.nb_cores = nb_cores
+        self.id_process = id_process
 
         with open(self.path_to_csv, 'r') as f_in:
             for i, line in enumerate(f_in):
@@ -35,9 +35,8 @@ class CsvManager:
                     self.header = line.replace('\n', '')
                     self.extract_info_header()
                     continue
-                self.nb_line_in_csv += 1
-                if i <= self.buffer_size:
-                    self.buffer.append(line.replace('\n', ''))
+                if i % self.nb_cores == self.id_process:
+                    self.nb_usable_lines_in_csv += 1
 
     def extract_info_header(self):
         list_header = self.header.split(self.sep)
@@ -60,33 +59,61 @@ class CsvManager:
         self.dict_arr = r_dict_arr
         self.dict_const = r_dict_const
 
-    def fill_buffer(self, nb_buffer_filled):
+    def get_parameters(self):
+        try:
+            line = self.buffer[self.counter_buffer]
+            self.counter_buffer += 1
+            self.nb_line_consumed += 1
+        except IndexError:
+            if self.nb_line_consumed == self.nb_usable_lines_in_csv:
+                return
+            self.fill_buffer()
+            line = self.buffer[0]
+            self.counter_buffer = 1
+            self.nb_line_consumed += 1
+        return self.create_param_manager_from_line(line)
+
+    def fill_buffer(self):
         self.buffer = []
-        with open(self.path_to_csv, 'r') as f_in:
-            for i, line in enumerate(f_in):
-                if i < nb_buffer_filled*self.buffer_size + 1:
+        size_current_buffer = 0
+        with open(self.path_to_csv) as f:
+            seen_lines = 0
+            for i, line in enumerate(f):
+                if i == 0:
                     continue
-                self.buffer.append(ParamManager(self.header, line.replace('\n', ''), self.dict_types, self.sep))
-                if i == (nb_buffer_filled+1)*self.buffer_size:
-                    break
+                if i % self.nb_cores == self.id_process:
+                    seen_lines += 1
+                    if seen_lines <= self.nb_line_consumed:
+                        continue
+                    self.buffer.append(line.replace('\n', ''))
+                    size_current_buffer += 1
+                    if size_current_buffer == self.buffer_size:
+                        break
+        return
 
-    def get_param(self):
-        if self.nb_param_requested == self.nb_line_in_csv:
-            return None
-        if self.nb_param_requested % self.buffer_size == 0:
-            self.fill_buffer(self.nb_param_requested // self.buffer_size)
-        self.nb_param_requested += 1
-        return self.buffer[(self.nb_param_requested - 1) % self.buffer_size]
+    def create_param_manager_from_line(self, line):
+        data = line.split(self.sep)
+        names = []
+        values = []
+        for name in self.dict_const:
+            names.append(name)
+            if name in self.dict_types:
+                if self.dict_types[name] == bool:
+                    values.append(data[self.dict_const[name]].lower() == 'true')
+                else:
+                    values.append(self.dict_types[name](data[self.dict_const[name]]))
+            else:
+                values.append(data[self.dict_const[name]])
+        for name in self.dict_arr:
+            names.append(name)
+            if name in self.dict_types:
+                if self.dict_types[name] == bool:
+                    values.append(np.array([data[u].lower() == 'true' for u in self.dict_arr[name]]))
+                else:
+                    values.append(np.array([self.dict_types[name](data[u]) for u in self.dict_arr[name]]))
+            else:
+                values.append(np.array([data[u] for u in self.dict_arr[name]]))
+        return ParamManager(names, values)
 
 
-class CsvManagerMultiThread:
-    def __init__(self, path_to_csv, list_in_queue, list_out_queue, dict_types={}, max_nb_line=None):
-        """
-        todo
-        :param path_to_csv:
-        :param dict_types:
-        :param max_nb_line:
-        """
-        self.path = path_to_csv
-        self.dict_types = dict_types
-        self.max_nb_lines = max_nb_line
+
