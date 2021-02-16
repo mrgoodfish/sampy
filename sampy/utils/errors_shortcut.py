@@ -27,7 +27,7 @@ def check_input_is_permutation(array, name_argument, length):
 
 
 def check_col_exists_good_type(df, name_col, name_argument, prefix_dtype='', reject_none=False):
-    if not isinstance(name_col, 'str'):
+    if not isinstance(name_col, str):
         raise TypeError("A column name should be a string, which is not the case for provided " + name_argument + ".")
     if name_col not in df.dict_colname_to_index:
         raise KeyError("Provided " + name_argument + " does not match any column name in df_population.")

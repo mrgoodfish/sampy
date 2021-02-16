@@ -67,5 +67,5 @@ for i in range(nb_year_simu * 52 + 1):
     if i % 52 == 40:
         can_move = racoons.df_population['age'] > 11
         racoons.dispersion_with_varying_nb_of_steps(np.array([1, 2, 3, 4]),
-                                                   np.array([.25, .25, .25, .25]),
-                                                   condition=can_move)
+                                                    np.array([.25, .25, .25, .25]),
+                                                    condition=can_move)

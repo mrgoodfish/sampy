@@ -13,7 +13,9 @@ class BasicMammal(BaseAgingAgent,
                   OffspringDependantOnParents,
                   BasicReproduction,
                   TerritorialMovementWithoutResistance):
-
+    """
+    todo
+    """
     def __init__(self, **kwargs):
         pass
 

@@ -192,23 +192,31 @@ def movement_change_territory_and_position_condition(territory, position, condit
     counter_rand = 0
     for i in range(territory.shape[0]):
         if condition[i]:
+            found = False
             for j in range(weights.shape[1]):
-                if rand[counter_rand] < weights[territory[i]][j]:
+                if rand[counter_rand] <= weights[territory[i]][j]:
+                    found = True
                     # very important to update position first
                     position[i] = connections[territory[i]][j]
                     territory[i] = connections[territory[i]][j]
                     break
+            if not found:
+                position[i] = territory[i]
             counter_rand += 1
 
 
 @nb.njit
 def movement_change_territory_and_position(territory, position, rand, connections, weights):
     for i in range(territory.shape[0]):
+        found = False
         for j in range(weights.shape[1]):
             if rand[i] <= weights[territory[i]][j]:
+                found = True
                 position[i] = connections[territory[i]][j]
                 territory[i] = connections[territory[i]][j]
                 break
+        if not found:
+            position[i] = territory[i]
 
 
 @nb.njit

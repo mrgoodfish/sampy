@@ -6,6 +6,7 @@ from .jit_compiled_functions import (movement_change_territory_and_position,
                                      movement_dispersion_with_varying_nb_of_steps,
                                      movement_dispersion_with_varying_nb_of_steps_condition)
 from ..pandas_xs.pandas_xs import DataFrameXS
+from ..utils.errors_shortcut import check_col_exists_good_type
 
 
 class TerritorialMovementWithoutResistance:
@@ -18,6 +19,20 @@ class TerritorialMovementWithoutResistance:
 
         self.df_population['territory'] = None
         self.df_population['position'] = None
+
+    def _sampy_debug_change_territory(self,
+                                      condition=None,
+                                      territory_attribute='territory',
+                                      position_attribute='position'):
+        if condition is not None:
+            if (not isinstance(condition, np.ndarray)) or \
+                    (condition.shape != (self.df_population.nb_rows,)) or \
+                    (not str(condition.dtype).startswith('bool')):
+                raise ValueError("if used, condition argument should be a 1D array of bool of same length as the number"
+                                 " of individuals.")
+
+        check_col_exists_good_type(self.df_population, territory_attribute, prefix_dtype='int')
+        check_col_exists_good_type(self.df_population, position_attribute, prefix_dtype='int')
 
     def change_territory(self,
                          condition=None,
@@ -73,12 +88,18 @@ class TerritorialMovementWithoutResistance:
                                             position_attribute='position'
                                             ):
         """
-        todo
-        :param arr_nb_steps:
-        :param arr_prob:
-        :param condition:
-        :param territory_attribute:
-        :param position_attribute:
+        Used to modelize dispersion of agents. Each selected agent will perform a random number of discrete steps on
+        the graph. The number of steps is determined using the user inputs 'arr_nb_steps' and 'arr_prob'. Both
+        position and territory are updated.
+
+        :param arr_nb_steps: 1D array of int, giving the permissible number of steps.
+        :param arr_prob: 1D array of float, arr_prob[i] is the probability that a given agent will perform
+                         arr_nb_steps[i] steps.
+        :param condition: optional, array of bool, default None. Array of boolean such that the i-th value is
+                          True if and only if the i-th agent (i.e. the agent at the line i of df_population) can
+                          move. If left at None, all the agents move.
+        :param territory_attribute: optional, string, default 'territory'.
+        :param position_attribute: optional, string, default 'position'.
         """
         if self.df_population.nb_rows == 0:
             return
