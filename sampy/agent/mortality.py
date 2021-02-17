@@ -219,8 +219,8 @@ class OffspringDependantOnParents:
                                            age_attribute='age',
                                            mother_id_attribute='mom_id'):
         """
-        Kill the agents that are not adult yet and whose mother is dead. Note that an agent whose age is precisely
-        age_limit is not considered adult.
+        Kill the agents that are not independent yet and whose mother is dead. Note that an agent whose age is precisely
+        age_limit is not considered independent.
 
         :param age_limit: integer.
         :param id_attribute: optional, string, default 'col_id'

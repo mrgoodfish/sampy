@@ -6,9 +6,9 @@ class BaseSingleSpeciesDisease:
     def __init__(self, disease_name=None, host=None, **kwargs):
         # check values have been given
         if host is None:
-            raise ValueError('No host given for the disease')
+            raise ValueError("No host given for the disease. Use the kwarg 'host'.")
         if disease_name is None:
-            raise ValueError('No name given to the disease')
+            raise ValueError("No name given to the disease. Use the kwarg 'disease_name'.")
 
         self.host = host
         self.disease_name = disease_name
