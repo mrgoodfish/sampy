@@ -6,12 +6,20 @@ from .jit_compiled_functions import (movement_change_territory_and_position,
                                      movement_dispersion_with_varying_nb_of_steps,
                                      movement_dispersion_with_varying_nb_of_steps_condition)
 from ..pandas_xs.pandas_xs import DataFrameXS
-from ..utils.errors_shortcut import check_col_exists_good_type
+from ..utils.errors_shortcut import (check_col_exists_good_type,
+                                     check_input_array)
 
 
 class TerritorialMovementWithoutResistance:
     """
+    Add graph based movements abilities to the agents. Agents have both a territory and a position, which can be
+    different. Generally, the position of an agent will be either its territory vertex, or a vertex neighbouring its
+    territory.
 
+    Note that both position and territory are stored as integers, i.e. using the vertices indices which generally
+    differ from their id. If needed, conversion should be performed by the user using the graph attribute
+    'dict_cell_id_to_ind'. Equivalently, the user may extract a table giving the correspondence between id and indexes
+    using the graph method 'save_table_id_of_vertices_to_indices'.
     """
     def __init__(self, **kwargs):
         if not hasattr(self, 'df_population'):
@@ -24,6 +32,8 @@ class TerritorialMovementWithoutResistance:
                                       condition=None,
                                       territory_attribute='territory',
                                       position_attribute='position'):
+        if self.df_population.nb_rows == 0:
+            return
         if condition is not None:
             if (not isinstance(condition, np.ndarray)) or \
                     (condition.shape != (self.df_population.nb_rows,)) or \
@@ -46,6 +56,8 @@ class TerritorialMovementWithoutResistance:
         :param territory_attribute: optional, string, default 'territory'
         :param position_attribute: optional, string, default 'position'
         """
+        if self.df_population.nb_rows == 0:
+            return
         if condition is not None:
             rand = np.random.uniform(0, 1, (condition.sum(),))
             movement_change_territory_and_position_condition(self.df_population[territory_attribute],
@@ -57,6 +69,20 @@ class TerritorialMovementWithoutResistance:
             movement_change_territory_and_position(self.df_population[territory_attribute],
                                                    self.df_population[position_attribute],
                                                    rand, self.graph.connections, self.graph.weights)
+
+    def _sampy_debug_mov_around_territory(self,
+                                          proba_remain_on_territory,
+                                          condition=None,
+                                          territory_attribute='territory',
+                                          position_attribute='position'):
+        if self.df_population.nb_rows == 0:
+            return
+        if condition is not None:
+            check_input_array(condition, 'condition', 'bool', shape=(self.df_population.nb_rows,))
+        check_col_exists_good_type(self.df_population, territory_attribute, 'territory_attribute', prefix_dtype='int',
+                                   reject_none=True)
+        check_col_exists_good_type(self.df_population, position_attribute, 'position_attribute', prefix_dtype='int',
+                                   reject_none=True)
 
     def mov_around_territory(self,
                              proba_remain_on_territory,
@@ -73,6 +99,8 @@ class TerritorialMovementWithoutResistance:
         :param territory_attribute: optional, string, default 'territory'
         :param position_attribute: optional, string, default 'position'
         """
+        if self.df_population.nb_rows == 0:
+            return
         if condition is not None:
             pre_bool_mov = np.random.uniform(0, 1, condition.sum()) > proba_remain_on_territory
             bool_mov = movement_mov_around_territory_fill_bool_mov_using_condition(pre_bool_mov, condition)
@@ -81,6 +109,28 @@ class TerritorialMovementWithoutResistance:
         rand = np.random.uniform(0, 1, bool_mov.sum())
         movement_mov_around_territory(self.df_population[territory_attribute], self.df_population[position_attribute],
                                       bool_mov, rand, self.graph.connections, self.graph.weights)
+
+    def _sampy_debug_dispersion_with_varying_nb_of_steps(self, arr_nb_steps, arr_prob,
+                                                         condition=None,
+                                                         territory_attribute='territory',
+                                                         position_attribute='position'
+                                                         ):
+        if self.df_population.nb_rows == 0:
+            return
+
+        check_input_array(arr_nb_steps, 'arr_nb_steps', 'int', nb_dim=1)
+        check_input_array(arr_prob, 'arr_prob', 'float', nb_dim=1)
+
+        if arr_prob.shape != arr_nb_steps.shape:
+            raise ValueError("Arguments 'arr_nb_steps' and 'arr_prob' have different shapes.")
+
+        if condition is not None:
+            check_input_array(condition, 'condition', 'bool', shape=(self.df_population.nb_rows,))
+
+        check_col_exists_good_type(self.df_population, territory_attribute, 'territory_attribute', prefix_dtype='int',
+                                   reject_none=True)
+        check_col_exists_good_type(self.df_population, position_attribute, 'position_attribute', prefix_dtype='int',
+                                   reject_none=True)
 
     def dispersion_with_varying_nb_of_steps(self, arr_nb_steps, arr_prob,
                                             condition=None,

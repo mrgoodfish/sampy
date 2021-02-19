@@ -57,8 +57,8 @@ for i in range(nb_year_simu * 52 + 1):
     racoons.kill_too_old(52*7 - 1)
     my_condition = racoons.df_population['age'] >= 12
     racoons.natural_death_orm_methodology(ARR_PROB_DEATH_MALE, ARR_PROB_DEATH_FEMALE,
-                                          position_attribute='territory')#,
-                                          #condition=None, condition_count=my_condition)
+                                          position_attribute='territory',
+                                          condition=None, condition_count=my_condition)
     racoons.kill_children_whose_mother_is_dead(20)
 
     racoons.mov_around_territory(0.2)

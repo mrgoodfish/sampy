@@ -67,8 +67,8 @@ class ProposedStep:
 
 class RandomWalkOnSphere:
     """
-    This class give the ability to the agent to perform random walks on a sphere. The directions are conserved between
-    consecutive steps by using parallel transport methods. The
+    This class give the ability for the agent to perform random walks on a sphere. The directions are preserved between
+    consecutive steps by using parallel transport.
     """
     def __init__(self):
         self.radius = 1.

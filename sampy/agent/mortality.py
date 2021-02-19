@@ -137,7 +137,7 @@ class NaturalMortalityOrmMethodology:
             if condition is not None:
                 condition = condition[used_permutation]
             if condition_count is not None:
-                condition_count = condition[used_permutation]
+                condition_count = condition_count[used_permutation]
 
         # count agents per cell
         count_arr = self.count_pop_per_vertex(position_attribute=position_attribute, condition=condition_count)
@@ -199,17 +199,9 @@ class NaturalMortalityOrmMethodology:
         self.df_population = self.df_population[self.df_population[age_attribute] < limit_age]
 
 
-class NaturalMortalityWithExponentialLaw:
-    """
-    todo
-    """
-    def __init__(self, **kwargs):
-        pass
-
-
 class OffspringDependantOnParents:
     """
-    This class add the possibility to
+    This class add the possibility to kill the dependent offsprings whose mother is dead.
     """
     def __init__(self, **kwargs):
         pass
@@ -222,7 +214,7 @@ class OffspringDependantOnParents:
         Kill the agents that are not independent yet and whose mother is dead. Note that an agent whose age is precisely
         age_limit is not considered independent.
 
-        :param age_limit: integer.
+        :param age_limit: integer. Age of independence.
         :param id_attribute: optional, string, default 'col_id'
         :param age_attribute: optional, string, default 'age'
         :param mother_id_attribute: optional, string, default 'mom_id'
@@ -234,3 +226,29 @@ class OffspringDependantOnParents:
                                                       condition=young)
         too_old = np.array(self.df_population[age_attribute] > age_limit)
         self.df_population = self.df_population[has_mom | too_old]
+
+
+class KillPercentagePop:
+    """
+    This class adds the possibility to kill a given percentage of the population.
+    """
+    def __init__(self, **kwargs):
+        pass
+
+    def _sampy_debug_kill_proportion_of_population(self, proportion, condition=None):
+        if condition is not None:
+            check_input_array(condition, 'condition', 'bool', shape=(self.df_population.nb_rows,))
+
+    def kill_proportion_of_population(self, proportion, condition=None):
+        """
+        For each agent, a random uniform number between 0 and 1 is sampled, and each agent for which this number is
+        smaller than the argument 'proportion' is killed. Note that the user can use the kwarg 'condition' to
+        exclude some agents from this test.
+
+        :param proportion: float between 0 and 1.
+        :param condition: optional, 1D array of bool, default None.
+        """
+        rand = np.random.uniform(0, 1, (self.df_population.nb_rows,)) > proportion
+        if condition is not None:
+            rand = rand & condition
+        self.df_population = self.df_population[rand]

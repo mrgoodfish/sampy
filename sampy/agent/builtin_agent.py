@@ -1,6 +1,6 @@
 from .base import BaseAgingAgent
 from .mortality import NaturalMortalityOrmMethodology, OffspringDependantOnParents
-from .reproduction import BasicReproduction
+from .reproduction import BasicReproductionTerritorialAgent
 from .movement import TerritorialMovementWithoutResistance
 from ..utils.decorators import sampy_class
 
@@ -11,7 +11,7 @@ from ..pandas_xs.pandas_xs import DataFrameXS
 class BasicMammal(BaseAgingAgent,
                   NaturalMortalityOrmMethodology,
                   OffspringDependantOnParents,
-                  BasicReproduction,
+                  BasicReproductionTerritorialAgent,
                   TerritorialMovementWithoutResistance):
     """
     todo

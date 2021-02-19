@@ -6,8 +6,13 @@ from .jit_compiled_functions import (reproduction_find_random_mate_on_position,
 from .jit_compiled_functions import repro_marker_find_mate_part_2
 from ..pandas_xs.pandas_xs import DataFrameXS
 
+from .. utils.errors_shortcut import (check_input_is_permutation,
+                                      check_input_array,
+                                      check_col_exists_good_type,
+                                      check_if_gender_array)
 
-class BasicReproduction:
+
+class BasicReproductionTerritorialAgent:
     """
     This class provides methods to modelize reproduction of agents. Variety of methods are provided.
     """
@@ -27,6 +32,31 @@ class BasicReproduction:
         self.dict_default_val['gender'] = 1
         self.dict_default_val['is_pregnant'] = False
         self.dict_default_val['current_mate'] = -1
+
+    def _sampy_debug_find_random_mate_on_position(self,
+                                                  prob_get_pregnant,
+                                                  shuffle=True,
+                                                  permutation=None,
+                                                  condition=None,
+                                                  id_attribute='col_id',
+                                                  position_attribute='position',
+                                                  gender_attribute='gender',
+                                                  mate_attribute='current_mate',
+                                                  pregnancy_attribute='is_pregnant'):
+        if self.df_population.nb_rows == 0:
+            return
+
+        if permutation is not None:
+            check_input_is_permutation(permutation, 'permutation', self.df_population.nb_rows)
+
+        if condition is not None:
+            check_input_array(condition, 'condition', 'bool', shape=(self.df_population.nb_rows,))
+
+        check_col_exists_good_type(self.df_population, position_attribute, prefix_dtype='int', reject_none=True)
+        check_col_exists_good_type(self.df_population, mate_attribute, prefix_dtype='int', reject_none=True)
+        check_col_exists_good_type(self.df_population, pregnancy_attribute, prefix_dtype='bool', reject_none=True)
+
+        check_if_gender_array(self.df_population[gender_attribute])
 
     def find_random_mate_on_position(self,
                                      prob_get_pregnant,
@@ -61,6 +91,9 @@ class BasicReproduction:
         :param mate_attribute: optional, string, default 'current_mate'.
         :param pregnancy_attribute: optional, string, default 'is_pregnant'.
         """
+        if self.df_population.nb_rows == 0:
+            return
+
         if shuffle:
             self.df_population.scramble(permutation=permutation)
 
@@ -87,6 +120,56 @@ class BasicReproduction:
 
         self.df_population[mate_attribute] = col_mate
         self.df_population[pregnancy_attribute] = col_pregnancy
+
+    def _sampy_debug_create_offsprings_custom_prob(self,
+                                                   arr_nb_children,
+                                                   arr_prob_nb_children,
+                                                   condition=None,
+                                                   dico_default_values={},
+                                                   prob_failure=None,
+                                                   age_attribute='age',
+                                                   mother_attribute='mom_id',
+                                                   father_attribute='dad_id',
+                                                   gender_attribute='gender',
+                                                   id_attribute='col_id',
+                                                   position_attribute='position',
+                                                   territory_attribute='territory',
+                                                   mate_attribute='current_mate',
+                                                   pregnancy_attribute='is_pregnant'):
+        if self.df_population.nb_rows == 0:
+            return
+
+        check_input_array(arr_nb_children, 'arr_nb_children', 'int', nb_dim=1)
+        check_input_array(arr_prob_nb_children, 'arr_prob_nb_children', 'float', nb_dim=1)
+
+        if arr_nb_children.shape != arr_prob_nb_children.shape:
+            raise ValueError("Arguments 'arr_nb_children' and 'arr_prob_nb_children' have different shapes.")
+
+        if condition is not None:
+            check_input_array(condition, 'condition', 'bool', shape=(self.df_population.nb_rows,))
+
+        if not hasattr(dico_default_values, 'items') or hasattr(getattr(dico_default_values, 'items'), '__call__'):
+            raise TypeError("The argument 'dico_default_value' should be a dictionnary-like object. Namely, have a "
+                            "method called 'items' allowing to loop through keys and values.")
+
+        check_col_exists_good_type(self.df_population, age_attribute, 'age_attribute', prefix_dtype='int',
+                                   reject_none=True)
+        check_col_exists_good_type(self.df_population, mother_attribute, 'mother_attribute', prefix_dtype='int',
+                                   reject_none=True)
+        check_col_exists_good_type(self.df_population, father_attribute, 'father_attribute', prefix_dtype='int',
+                                   reject_none=True)
+
+        check_if_gender_array(self.df_population[gender_attribute])
+
+        check_col_exists_good_type(self.df_population, position_attribute, 'position_attribute', prefix_dtype='int',
+                                   reject_none=True)
+        check_col_exists_good_type(self.df_population, territory_attribute, 'territory_attribute', prefix_dtype='int',
+                                   reject_none=True)
+        check_col_exists_good_type(self.df_population, mate_attribute, 'mate_attribute', prefix_dtype='int',
+                                   reject_none=True)
+
+        check_col_exists_good_type(self.df_population, pregnancy_attribute, 'pregnancy_attribute', prefix_dtype='bool',
+                                   reject_none=True)
 
     def create_offsprings_custom_prob(self,
                                       arr_nb_children,
@@ -125,6 +208,9 @@ class BasicReproduction:
         :param mate_attribute:
         :param pregnancy_attribute:
         """
+        if self.df_population.nb_rows == 0:
+            return
+
         selected_females = self.df_population[pregnancy_attribute]
         if condition is not None:
             selected_females = selected_females & condition
@@ -177,168 +263,157 @@ class BasicReproduction:
         # concatenate the two dataframe
         self.df_population.concat(df_children)
 
-    def create_babies_poisson_law(self,
-                                  lambda_poisson,
-                                  max_offspring_per_litter,
-                                  dico_default_values={},
-                                  prob_failure=None,
-                                  age_attribute='age',
-                                  mother_attribute='mom_id',
-                                  father_attribute='dad_id',
-                                  gender_attribute='gender',
-                                  id_attribute='col_id',
-                                  position_attribute='position',
-                                  territory_attribute='territory',
-                                  mate_attribute='current_mate',
-                                  pregnancy_attribute='is_pregnant'):
-        pass
 
 
-class MammalReproductionGeneticMarker:
-    """
-    type of markers are encoded with integers.
-    """
-    def __init__(self):
-        self.list_markers = []
-        super().__init__()
 
-    def add_marker(self, name_marker, default_value=0):
-        """
-        add 4 columns to the dataframe 2 for the markers of the individual, 2 for the markers of its mate if female.
-        :param name_marker: string, name of the marker
-        :param default_value: default 0.
-        """
-        if name_marker in self.list_markers:
-            raise ValueError("Marker " + name_marker + " already exists.")
-        self.list_markers.append(name_marker)
-        self.df_population['marker_' + name_marker + '_1'] = default_value
-        self.df_population['marker_' + name_marker + '_2'] = default_value
-        self.df_population['marker_' + name_marker + '_from_mate_1'] = default_value
-        self.df_population['marker_' + name_marker + '_from_mate_2'] = default_value
 
-    def find_random_mate_on_position(self,
-                                     id_attribute='col_id',
-                                     position_attribute='position',
-                                     gender_attribute='gender',
-                                     mate_attribute='current_mate',
-                                     pregnancy_attribute='is_pregnant'):
-        """
-        todo
-        :param id_attribute:
-        :param position_attribute:
-        :param gender_attribute:
-        :param mate_attribute:
-        :param pregnancy_attribute:
-        """
-        arr_id = np.array(self.df_population[id_attribute], dtype=np.int32)
-        position = np.array(self.df_population[position_attribute], dtype=np.int32)
-        gender = np.array(self.df_population[gender_attribute] == 'male', dtype=np.bool_)
-        nb_vertex = self.graph.connections.shape[0]
-        max_male, max_female = reprod_part1(nb_vertex, position, gender)
-        rand = np.random.permutation(position.shape[0])
-        list_arr_markers = []
-        for name in self.list_markers:
-            list_arr_markers.append(np.array(self.df_population['marker_' + name + '_1']))
-            list_arr_markers.append(np.array(self.df_population['marker_' + name + '_2']))
-        stacked_marker_array = np.column_stack(list_arr_markers)
-        stacked_marker_array = np.array(stacked_marker_array, dtype=np.int32)
-        # print(stacked_marker_array)
-        col_pregnancy, col_mate, array_markers = repro_marker_find_mate_part_2(nb_vertex, max_male, max_female, arr_id,
-                                                                               position, gender, stacked_marker_array,
-                                                                               rand)
-        self.df_population[mate_attribute] = col_mate
-        self.df_population[pregnancy_attribute] = col_pregnancy
-        for i, name in enumerate(self.list_markers):
-            self.df_population['marker_' + name + '_from_mate_1'] = array_markers[:, 2 * i]
-            self.df_population['marker_' + name + '_from_mate_2'] = array_markers[:, 2 * i + 1]
 
-    def create_babies(self,
-                      target_nb_child,
-                      prob_nb_children,
-                      dico_default_values={},
-                      prob_failure=None,
-                      age_attribute='age',
-                      mother_attribute='mom_id',
-                      father_attribute='dad_id',
-                      gender_attribute='gender',
-                      id_attribute='col_id',
-                      position_attribute='position',
-                      territory_attribute='territory',
-                      mate_attribute='current_mate',
-                      pregnancy_attribute='is_pregnant'):
-        """
-        todo
-        :param target_nb_child:
-        :param prob_nb_children:
-        :param dico_default_values:
-        :param prob_failure:
-        :param age_attribute:
-        :param mother_attribute:
-        :param father_attribute:
-        :param id_attribute:
-        :param position_attribute:
-        :param territory_attribute:
-        :param mate_attribute:
-        :param pregnancy_attribute:
-        """
-        df_tp = self.df_population[self.df_population[pregnancy_attribute]].copy()
-        if prob_failure is not None:
-            nb_pregn = df_tp.shape[0]
-            df_tp = self.df_population[np.random.uniform(0, 1, (nb_pregn,)) >= prob_failure ]
 
-        # extract features
-        mom_id = np.array(df_tp[id_attribute])
-        dad_id = np.array(df_tp[mate_attribute])
-        pos = np.array(df_tp[territory_attribute])
-        list_col = [mom_id, dad_id, pos]
-        for name in self.list_markers:
-            list_col.append(np.array(df_tp['marker_' + name + '_1']))
-            list_col.append(np.array(df_tp['marker_' + name + '_2']))
-            list_col.append(np.array(df_tp['marker_' + name + '_from_mate_1']))
-            list_col.append(np.array(df_tp['marker_' + name + '_from_mate_2']))
-
-        # concatenate the columns
-        concat = np.column_stack(list_col)
-        arr_nb_baby = np.random.choice(target_nb_child, concat.shape[0], p=prob_nb_children)
-
-        # array with the non-default values for the children
-        result_before_marker_selection = np.repeat(concat, arr_nb_baby, axis=0)
-
-        # we now create the array where the markers have been selected
-        list_col = [result_before_marker_selection[:, 0], result_before_marker_selection[:, 1],
-                    result_before_marker_selection[:, 2]]
-        for i, _ in enumerate(self.list_markers):
-            mom_marker = result_before_marker_selection[:, (3 + 4*i):(5 + 4*i)]
-            dad_marker = result_before_marker_selection[:, (5 + 4*i):(7 + 4*i)]
-            rand_1 = 1 * (np.random.uniform(0, 1, (mom_marker.shape[0],)) > 0.5)
-            list_col.append(mom_marker[range(mom_marker.shape[0]), rand_1].copy())
-            rand_2 = 1 * (np.random.uniform(0, 1, (dad_marker.shape[0],)) > 0.5)
-            list_col.append(dad_marker[range(dad_marker.shape[0]), rand_2].copy())
-
-        result = np.column_stack(list_col)
-
-        # create the df
-        df = pd.DataFrame(columns=list(self.df_population))
-        df[mother_attribute] = result[:, 0]
-        df[father_attribute] = result[:, 1]
-        df[position_attribute] = result[:, 2]
-        df[territory_attribute] = result[:, 2]
-        for i, name in enumerate(self.list_markers):
-            df['marker_' + name + '_1'] = result[:, 3+2*i]
-            df['marker_' + name + '_2'] = result[:, 4+2*i]
-            df['marker_' + name + '_from_mate_1'] = 0
-            df['marker_' + name + '_from_mate_2'] = 0
-
-        # defines the gender of the offsprings
-        rand = np.random.uniform(0, 1, (df.shape[0],))
-        df[gender_attribute] = np.array(['male'*(float(u) >= 0.5)+'female'*(float(u) < 0.5) for u in rand])
-        df[pregnancy_attribute] = np.full((df.shape[0],), False)
-        df[age_attribute] = np.full((df.shape[0],), 0)
-        df[id_attribute] = np.arange(self.counter_id, self.counter_id + df.shape[0])
-        self.counter_id = self.counter_id + df.shape[0]
-        for attr, def_value in dico_default_values.items():
-            df[attr] = np.full((df.shape[0],), def_value)
-
-        # concatenate the two dataframe
-        self.df_population = pd.concat([self.df_population, df], copy=True)
-        self.df_population[pregnancy_attribute] = False
+# class MammalReproductionGeneticMarker:
+#     """
+#     type of markers are encoded with integers.
+#     """
+#     def __init__(self):
+#         self.list_markers = []
+#         super().__init__()
+#
+#     def add_marker(self, name_marker, default_value=0):
+#         """
+#         add 4 columns to the dataframe 2 for the markers of the individual, 2 for the markers of its mate if female.
+#         :param name_marker: string, name of the marker
+#         :param default_value: default 0.
+#         """
+#         if name_marker in self.list_markers:
+#             raise ValueError("Marker " + name_marker + " already exists.")
+#         self.list_markers.append(name_marker)
+#         self.df_population['marker_' + name_marker + '_1'] = default_value
+#         self.df_population['marker_' + name_marker + '_2'] = default_value
+#         self.df_population['marker_' + name_marker + '_from_mate_1'] = default_value
+#         self.df_population['marker_' + name_marker + '_from_mate_2'] = default_value
+#
+#     def find_random_mate_on_position(self,
+#                                      id_attribute='col_id',
+#                                      position_attribute='position',
+#                                      gender_attribute='gender',
+#                                      mate_attribute='current_mate',
+#                                      pregnancy_attribute='is_pregnant'):
+#         """
+#         todo
+#         :param id_attribute:
+#         :param position_attribute:
+#         :param gender_attribute:
+#         :param mate_attribute:
+#         :param pregnancy_attribute:
+#         """
+#         arr_id = np.array(self.df_population[id_attribute], dtype=np.int32)
+#         position = np.array(self.df_population[position_attribute], dtype=np.int32)
+#         gender = np.array(self.df_population[gender_attribute] == 'male', dtype=np.bool_)
+#         nb_vertex = self.graph.connections.shape[0]
+#         max_male, max_female = reprod_part1(nb_vertex, position, gender)
+#         rand = np.random.permutation(position.shape[0])
+#         list_arr_markers = []
+#         for name in self.list_markers:
+#             list_arr_markers.append(np.array(self.df_population['marker_' + name + '_1']))
+#             list_arr_markers.append(np.array(self.df_population['marker_' + name + '_2']))
+#         stacked_marker_array = np.column_stack(list_arr_markers)
+#         stacked_marker_array = np.array(stacked_marker_array, dtype=np.int32)
+#         # print(stacked_marker_array)
+#         col_pregnancy, col_mate, array_markers = repro_marker_find_mate_part_2(nb_vertex, max_male, max_female, arr_id,
+#                                                                                position, gender, stacked_marker_array,
+#                                                                                rand)
+#         self.df_population[mate_attribute] = col_mate
+#         self.df_population[pregnancy_attribute] = col_pregnancy
+#         for i, name in enumerate(self.list_markers):
+#             self.df_population['marker_' + name + '_from_mate_1'] = array_markers[:, 2 * i]
+#             self.df_population['marker_' + name + '_from_mate_2'] = array_markers[:, 2 * i + 1]
+#
+#     def create_babies(self,
+#                       target_nb_child,
+#                       prob_nb_children,
+#                       dico_default_values={},
+#                       prob_failure=None,
+#                       age_attribute='age',
+#                       mother_attribute='mom_id',
+#                       father_attribute='dad_id',
+#                       gender_attribute='gender',
+#                       id_attribute='col_id',
+#                       position_attribute='position',
+#                       territory_attribute='territory',
+#                       mate_attribute='current_mate',
+#                       pregnancy_attribute='is_pregnant'):
+#         """
+#         todo
+#         :param target_nb_child:
+#         :param prob_nb_children:
+#         :param dico_default_values:
+#         :param prob_failure:
+#         :param age_attribute:
+#         :param mother_attribute:
+#         :param father_attribute:
+#         :param id_attribute:
+#         :param position_attribute:
+#         :param territory_attribute:
+#         :param mate_attribute:
+#         :param pregnancy_attribute:
+#         """
+#         df_tp = self.df_population[self.df_population[pregnancy_attribute]].copy()
+#         if prob_failure is not None:
+#             nb_pregn = df_tp.shape[0]
+#             df_tp = self.df_population[np.random.uniform(0, 1, (nb_pregn,)) >= prob_failure ]
+#
+#         # extract features
+#         mom_id = np.array(df_tp[id_attribute])
+#         dad_id = np.array(df_tp[mate_attribute])
+#         pos = np.array(df_tp[territory_attribute])
+#         list_col = [mom_id, dad_id, pos]
+#         for name in self.list_markers:
+#             list_col.append(np.array(df_tp['marker_' + name + '_1']))
+#             list_col.append(np.array(df_tp['marker_' + name + '_2']))
+#             list_col.append(np.array(df_tp['marker_' + name + '_from_mate_1']))
+#             list_col.append(np.array(df_tp['marker_' + name + '_from_mate_2']))
+#
+#         # concatenate the columns
+#         concat = np.column_stack(list_col)
+#         arr_nb_baby = np.random.choice(target_nb_child, concat.shape[0], p=prob_nb_children)
+#
+#         # array with the non-default values for the children
+#         result_before_marker_selection = np.repeat(concat, arr_nb_baby, axis=0)
+#
+#         # we now create the array where the markers have been selected
+#         list_col = [result_before_marker_selection[:, 0], result_before_marker_selection[:, 1],
+#                     result_before_marker_selection[:, 2]]
+#         for i, _ in enumerate(self.list_markers):
+#             mom_marker = result_before_marker_selection[:, (3 + 4*i):(5 + 4*i)]
+#             dad_marker = result_before_marker_selection[:, (5 + 4*i):(7 + 4*i)]
+#             rand_1 = 1 * (np.random.uniform(0, 1, (mom_marker.shape[0],)) > 0.5)
+#             list_col.append(mom_marker[range(mom_marker.shape[0]), rand_1].copy())
+#             rand_2 = 1 * (np.random.uniform(0, 1, (dad_marker.shape[0],)) > 0.5)
+#             list_col.append(dad_marker[range(dad_marker.shape[0]), rand_2].copy())
+#
+#         result = np.column_stack(list_col)
+#
+#         # create the df
+#         df = pd.DataFrame(columns=list(self.df_population))
+#         df[mother_attribute] = result[:, 0]
+#         df[father_attribute] = result[:, 1]
+#         df[position_attribute] = result[:, 2]
+#         df[territory_attribute] = result[:, 2]
+#         for i, name in enumerate(self.list_markers):
+#             df['marker_' + name + '_1'] = result[:, 3+2*i]
+#             df['marker_' + name + '_2'] = result[:, 4+2*i]
+#             df['marker_' + name + '_from_mate_1'] = 0
+#             df['marker_' + name + '_from_mate_2'] = 0
+#
+#         # defines the gender of the offsprings
+#         rand = np.random.uniform(0, 1, (df.shape[0],))
+#         df[gender_attribute] = np.array(['male'*(float(u) >= 0.5)+'female'*(float(u) < 0.5) for u in rand])
+#         df[pregnancy_attribute] = np.full((df.shape[0],), False)
+#         df[age_attribute] = np.full((df.shape[0],), 0)
+#         df[id_attribute] = np.arange(self.counter_id, self.counter_id + df.shape[0])
+#         self.counter_id = self.counter_id + df.shape[0]
+#         for attr, def_value in dico_default_values.items():
+#             df[attr] = np.full((df.shape[0],), def_value)
+#
+#         # concatenate the two dataframe
+#         self.df_population = pd.concat([self.df_population, df], copy=True)
+#         self.df_population[pregnancy_attribute] = False
