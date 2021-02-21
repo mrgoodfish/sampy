@@ -206,6 +206,17 @@ class OffspringDependantOnParents:
     def __init__(self, **kwargs):
         pass
 
+    def _sampy_debug_kill_children_whose_mother_is_dead(self, age_limit,
+                                                        id_attribute='col_id',
+                                                        age_attribute='age',
+                                                        mother_id_attribute='mom_id'):
+        if self.df_population.nb_rows == 0:
+            return
+        check_col_exists_good_type(self.df_population, age_attribute, 'age_attribute', prefix_dtype='int',
+                                   reject_none=True)
+        check_col_exists_good_type(self.df_population, mother_id_attribute, 'mother_id_attribute', prefix_dtype='int',
+                                   reject_none=True)
+
     def kill_children_whose_mother_is_dead(self, age_limit,
                                            id_attribute='col_id',
                                            age_attribute='age',

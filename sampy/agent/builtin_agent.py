@@ -4,8 +4,6 @@ from .reproduction import BasicReproductionTerritorialAgent
 from .movement import TerritorialMovementWithoutResistance
 from ..utils.decorators import sampy_class
 
-from ..pandas_xs.pandas_xs import DataFrameXS
-
 
 @sampy_class
 class BasicMammal(BaseAgingAgent,
@@ -14,7 +12,7 @@ class BasicMammal(BaseAgingAgent,
                   BasicReproductionTerritorialAgent,
                   TerritorialMovementWithoutResistance):
     """
-    todo
+    Agent that represents a basic territorial mammal.
     """
     def __init__(self, **kwargs):
         pass

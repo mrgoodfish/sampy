@@ -3,6 +3,8 @@ from .jit_compiled_functions import (transition_initialize_counters_of_newly_inf
                                      transition_conditional_count_nb_agent_per_vertex,
                                      transition_falsify_when_condition
                                      )
+from ...utils.errors_shortcut import (check_input_array,
+                                      check_col_exists_good_type)
 
 
 class TransitionCustomProbPermanentImmunity:
@@ -23,6 +25,18 @@ class TransitionCustomProbPermanentImmunity:
         self.host.df_population['cnt_con_' + self.disease_name] = 0
         self.host.dict_default_val['cnt_con_' + self.disease_name] = 0
 
+    def _sampy_debug_initialize_counters_of_newly_infected(self, arr_new_infected, arr_nb_timestep, arr_prob):
+        if self.host.df_population.nb_rows == 0:
+            return
+
+        check_input_array(arr_new_infected, 'arr_new_infected', 'bool',
+                          shape=(self.host.df_population.nb_rows,))
+        check_input_array(arr_nb_timestep, 'arr_nb_timestep', 'int', nb_dim=1)
+        check_input_array(arr_prob, 'arr_prob', 'float', nb_dim=1)
+
+        if arr_prob.shape != arr_nb_timestep:
+            raise ValueError("Arguments 'arr_nb_timestep' and 'arr_prob' have different shapes.")
+
     def initialize_counters_of_newly_infected(self, arr_new_infected, arr_nb_timestep, arr_prob):
         """
         Method that HAS TO be called each time new individuals get infected
@@ -33,6 +47,8 @@ class TransitionCustomProbPermanentImmunity:
         :param arr_prob: 1d array of non negative floats, will be normalized to sum to 1.
 
         """
+        if self.host.df_population.nb_rows == 0:
+            return
         prob = arr_prob.astype('float64')
         prob = prob/prob.sum()
         arr_cnt = np.random.choice(arr_nb_timestep, arr_new_infected.sum(), p=prob)
@@ -47,12 +63,43 @@ class TransitionCustomProbPermanentImmunity:
         positive counters, so that if a negative counter was to appear, which shouldn't, this should be caused by
         something else.
         """
+        if self.host.df_population.nb_rows == 0:
+            return
         self.host.df_population['cnt_inf_' + self.disease_name] -= self.host.df_population['inf_' + self.disease_name] & \
                                                         (self.host.df_population['cnt_inf_' + self.disease_name] > 0)
         self.host.df_population['cnt_con_' + self.disease_name] -= self.host.df_population['con_' + self.disease_name] & \
                                                         (self.host.df_population['cnt_con_' + self.disease_name] > 0)
 
-    def transition_between_states(self, initial_state, target_state, proba_death=1.,
+    def _sampy_debug_transition_between_states(self, initial_state, target_state, condition=None, proba_death=1.,
+                                               arr_nb_timestep=None, arr_prob_nb_timestep=None,
+                                               return_transition_count=False, position_attribute='position'):
+        if self.host.df_population.nb_rows == 0:
+            return
+
+        if initial_state not in self.set_disease_status:
+            raise ValueError("Initial state is not in " + str(self.set_disease_status) + ".")
+        if target_state not in self.set_disease_status and target_state != 'death':
+            raise ValueError("Initial state is not in " + str(self.set_disease_status | {'death'}) + ".")
+
+        if condition is not None:
+            check_input_array(condition, 'condition', 'bool', shape=(self.host.df_population.nb_rows,))
+
+        if arr_nb_timestep is None and arr_prob_nb_timestep is not None:
+            raise ValueError("'arr_nb_timestep' is None while 'arr_prob_nb_timestep' is not.")
+
+        if arr_nb_timestep is not None and arr_prob_nb_timestep is None:
+            raise ValueError("'arr_prob_nb_timestep' is None while 'arr_nb_timestep' is not.")
+
+        if arr_nb_timestep is not None:
+            check_input_array(arr_nb_timestep, 'arr_nb_timestep', 'int', nb_dim=1)
+            check_input_array(arr_prob_nb_timestep, 'arr_prob_nb_timestep', 'float', nb_dim=1)
+            if arr_nb_timestep.shape != arr_prob_nb_timestep.shape:
+                raise ValueError("Arguments 'arr_nb_timestep' and 'arr_prob_nb_timestep' have different shapes.")
+
+        check_col_exists_good_type(self.host.df_population, position_attribute, 'position_attribute',
+                                   prefix_dtype='int', reject_none=True)
+
+    def transition_between_states(self, initial_state, target_state, condition=None, proba_death=1.,
                                   arr_nb_timestep=None, arr_prob_nb_timestep=None, return_transition_count=False,
                                   position_attribute='position'):
         """
@@ -76,10 +123,14 @@ class TransitionCustomProbPermanentImmunity:
 
         :returns: if return_transition_count is True, returns a 1d array of int. Else, returns None.
         """
+        if self.host.df_population.nb_rows == 0:
+            return
 
         # bool array of all individuals that will make transition
         susceptible = self.host.df_population['cnt_' + initial_state + '_' + self.disease_name] == 0
         susceptible = susceptible & self.host.df_population[initial_state + '_' + self.disease_name]
+        if condition is not None:
+            susceptible = susceptible & condition
 
         count_arr = None
 

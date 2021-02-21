@@ -1,10 +1,22 @@
 import numpy as np
 from .jit_compiled_functions import conditional_count_return_full_array
+from ...utils.errors_shortcut import (check_input_array,
+                                      check_col_exists_good_type)
 
 
 class TransmissionByContact:
     def __init__(self, **kwargs):
         pass
+
+    def _sampy_debug_contact_contagion(self, contact_rate, position_attribute='position', condition=None,
+                                       return_arr_new_infected=True):
+        if self.host.df_population.nb_rows == 0:
+            return
+
+        check_col_exists_good_type(self.host.df_population, position_attribute, 'position_attribute',
+                                   prefix_dtype='int', reject_none=True)
+        if condition is not None:
+            check_input_array(condition, 'condition', 'bool', shape=(self.host.df_population.nb_rows,))
 
     def contact_contagion(self, contact_rate, position_attribute='position',
                           condition=None,
