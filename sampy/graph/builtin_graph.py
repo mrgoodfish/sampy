@@ -1,6 +1,4 @@
-from .topology import (TopologiesFromFiles,
-                       IcosphereTopology,
-                       SquareGridWithDiagTopology,
+from .topology import (SquareGridWithDiagTopology,
                        SquareGridTopology)
 from .vertex_attributes import PeriodicAttributes, BaseVertexAttributes
 from .procedural import AttributeFrom2DGaussianNoise

@@ -225,6 +225,10 @@ class BasicReproductionTerritorialAgent:
         prob = prob/prob.sum()
         arr_nb_baby = np.random.choice(arr_nb_children, df_selected_female.nb_rows, p=prob)
 
+        arr_non_zero_babies = arr_nb_baby > 0
+        df_selected_female = df_selected_female[arr_non_zero_babies]
+        arr_nb_baby = arr_nb_baby[arr_non_zero_babies]
+
         # start building the children DataFrame
         df_children = DataFrameXS()
         df_children[mother_attribute] = np.repeat(df_selected_female[id_attribute], arr_nb_baby, axis=0)

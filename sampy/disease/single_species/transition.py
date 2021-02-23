@@ -174,7 +174,7 @@ class TransitionCustomProbPermanentImmunity:
 
                 transition_initialize_counters_of_newly_infected(susceptible,
                                                                  self.host.df_population[
-                                                                     'cnt_' + target_state + self.disease_name],
+                                                                     'cnt_' + target_state + '_' + self.disease_name],
                                                                  arr_cnt)
         return count_arr
 

@@ -34,8 +34,8 @@ class TransmissionByContact:
                           infection.
         :param return_arr_new_infected: optional, bool, default True
         """
-        col_pos = self.host.df_population[position_attribute], dtype=np.int32
-        col_con = self.host.df_population['con_' + self.disease_name], dtype=bool
+        col_pos = self.host.df_population[position_attribute]
+        col_con = self.host.df_population['con_' + self.disease_name]
         nb_vertex = self.host.graph.connections.shape[0]
 
         # return the array counting the number of contagious agents
