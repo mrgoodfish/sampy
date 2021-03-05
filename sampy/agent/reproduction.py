@@ -220,6 +220,9 @@ class BasicReproductionTerritorialAgent:
 
         df_selected_female = self.df_population[selected_females]
 
+        if df_selected_female.nb_rows == 0:
+            return
+
         # get number of babies per females
         prob = arr_prob_nb_children.astype('float64')
         prob = prob/prob.sum()
@@ -227,6 +230,10 @@ class BasicReproductionTerritorialAgent:
 
         arr_non_zero_babies = arr_nb_baby > 0
         df_selected_female = df_selected_female[arr_non_zero_babies]
+
+        if df_selected_female.nb_rows == 0:
+            return
+
         arr_nb_baby = arr_nb_baby[arr_non_zero_babies]
 
         # start building the children DataFrame
