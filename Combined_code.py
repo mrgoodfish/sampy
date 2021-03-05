@@ -18,8 +18,8 @@ from sampy.data_processing.write_file import counts_to_csv
 # create the landscape
 # This is the larger Ontario landscape
 my_graph = GraphFromORMxml(path_to_xml='C:/post_doc/data/orm_related_data/xml_landscapes/emily/ORMlandscape.xml')
-# my_graph.save_table_id_of_vertices_to_indices('C:/post_doc/data/orm_related_data/xml_landscapes/emily/table_graph.csv',
-#                                               ';')
+my_graph.save_table_id_of_vertices_to_indices('C:/post_doc/data/orm_related_data/xml_landscapes/emily/table_graph.csv',
+                                              ';')
 
 # create the agents
 racoons = ORMLikeAgent(graph=my_graph)

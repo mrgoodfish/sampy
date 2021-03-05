@@ -13,6 +13,8 @@ import pandas as pd
 
 from geopy import distance
 
+import os
+
 
 class BaseTopology:
     def __init__(self, **kwargs):
@@ -34,12 +36,16 @@ class BaseTopology:
         for method in self.on_ticker:
             getattr(self, method)()
 
-    def save_table_id_of_vertices_to_indices(self, path_to_csv, sep):
+    def save_table_id_of_vertices_to_indices(self, path_to_csv, sep, erase_existing_file=True):
         """
 
         :param path_to_csv:
         :param sep:
+        :param erase_existing_file:
         """
+        if erase_existing_file:
+            if os.path.exists(path_to_csv):
+                os.remove(path_to_csv)
         with open(path_to_csv, 'a') as f_out:
             f_out.write("id_vertex" + sep + "index_vertex" + "\n")
             for id_vertex, index in self.dict_cell_id_to_ind.items():
