@@ -1,17 +1,10 @@
-from sampy.utils.decorators import use_debug_mode
-from sampy.pandas_xs.pandas_xs import DataFrameXS
-
-from sampy.graph.builtin_graph import SquareGridWithDiag
 from sampy.agent.builtin_agent import BasicMammal
-from sampy.disease.single_species.builtin_disease import ContactCustomProbTransitionPermanentImmunity
-from sampy.graph.graph_from_ORM_xml import GraphFromORMxml
+from ORM_related_addons.graph_from_ORM_xml import GraphFromORMxml
 
 import numpy as np
 
 from constant_examples import (ARR_PROB_DEATH_FEMALE,
                                ARR_PROB_DEATH_MALE)
-from sampy.data_processing.write_file import counts_to_csv
-
 
 # use_debug_mode(DataFrameXS)
 # use_debug_mode(SquareGridWithDiag)

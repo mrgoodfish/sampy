@@ -1,6 +1,6 @@
-from .topology import BaseTopology
-from .vertex_attributes import BaseVertexAttributes, PeriodicAttributes
-from ..utils.decorators import sampy_class
+from sampy.graph.topology import BaseTopology
+from sampy.graph.vertex_attributes import BaseVertexAttributes, PeriodicAttributes
+from sampy.utils.decorators import sampy_class
 import xml.etree.ElementTree as ET
 import numpy as np
 
@@ -56,11 +56,32 @@ class GraphFromORMxml(BaseTopology,
         for cell in root.findall('AllCellData'):
             index_cell = self.dict_cell_id_to_ind[cell.find('HEXID').text]
             for info in cell:
-                if info.tag in set_neighbours_tags:
+
+                if info.tag == 'N':
                     if info.text != 'b' and info.text in self.dict_cell_id_to_ind:
-                        self.connections[index_cell][array_nb_neighbours[index_cell]] = \
-                            self.dict_cell_id_to_ind[info.text]
+                        self.connections[index_cell][0] = self.dict_cell_id_to_ind[info.text]
                         array_nb_neighbours[index_cell] += 1
+                if info.tag == 'NE':
+                    if info.text != 'b' and info.text in self.dict_cell_id_to_ind:
+                        self.connections[index_cell][1] = self.dict_cell_id_to_ind[info.text]
+                        array_nb_neighbours[index_cell] += 1
+                if info.tag == 'SE':
+                    if info.text != 'b' and info.text in self.dict_cell_id_to_ind:
+                        self.connections[index_cell][2] = self.dict_cell_id_to_ind[info.text]
+                        array_nb_neighbours[index_cell] += 1
+                if info.tag == 'S':
+                    if info.text != 'b' and info.text in self.dict_cell_id_to_ind:
+                        self.connections[index_cell][3] = self.dict_cell_id_to_ind[info.text]
+                        array_nb_neighbours[index_cell] += 1
+                if info.tag == 'SW':
+                    if info.text != 'b' and info.text in self.dict_cell_id_to_ind:
+                        self.connections[index_cell][4] = self.dict_cell_id_to_ind[info.text]
+                        array_nb_neighbours[index_cell] += 1
+                if info.tag == 'NW':
+                    if info.text != 'b' and info.text in self.dict_cell_id_to_ind:
+                        self.connections[index_cell][5] = self.dict_cell_id_to_ind[info.text]
+                        array_nb_neighbours[index_cell] += 1
+
                 elif info.tag == 'K':
                     self.df_attributes['K'][index_cell] = float(info.text)
                 elif info.tag == 'supercell':
@@ -75,11 +96,17 @@ class GraphFromORMxml(BaseTopology,
         # we now populate the weights array
         for i in range(self.connections.shape[0]):
             nb_neighbours = array_nb_neighbours[i]
+            seen_neighb = 0
             if nb_neighbours == 0:
                 continue
-            for j in range(nb_neighbours - 1):
-                self.weights[i][j] = float(j + 1)/float(nb_neighbours)
-            self.weights[i][nb_neighbours - 1] = 1.
+            for j in range(6):
+                if self.connections[i][j] != -1:
+                    seen_neighb += 1
+                    if seen_neighb == nb_neighbours:
+                        self.weights[i][j] = 1.
+                        break
+                    else:
+                        self.weights[i][j] = float(seen_neighb)/float(nb_neighbours)
 
     def get_super_cell(self, name_super_cell):
         return self.df_attributes['super_cell'] == self.dict_super_cell[name_super_cell]['index']

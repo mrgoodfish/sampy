@@ -1,8 +1,5 @@
-from sampy.utils.decorators import use_debug_mode
-from sampy.pandas_xs.pandas_xs import DataFrameXS
-
 import numpy as np
-from sampy.graph.graph_from_ORM_xml import GraphFromORMxml
+from ORM_related_addons.graph_from_ORM_xml import GraphFromORMxml
 from sampy.agent.builtin_agent import BasicMammal
 from sampy.data_processing.write_file import counts_to_csv
 # from sampy.disease.single_species.builtin_disease import ContactCustomProbTransitionPermanentImmunity

@@ -72,7 +72,7 @@ agents.df_population['inf_rabies'] = agents.df_population['territory'] == my_gra
 
 intervention = BasicVaccination(disease=disease, duration_vaccine=200)
 
-dict_vaccine = {(40 + i, j): 0.6 for i in range(20) for j in range(100)}
+dict_vaccine = {(40 + i, j): 0.7 for i in range(20) for j in range(100)}
 
 list_infected = []
 nb_year = 8
@@ -84,8 +84,9 @@ for i in range(nb_year * 52 + 1):
 
     intervention.update_vaccine_status()
     if i % 52 == 0:
-        condition = ~agents.df_population['imm_rabies'] & ~agents.df_population['inf_rabies'] & \
-            ~agents.df_population['con_rabies']
+        condition = ~agents.df_population['imm_rabies'] & \
+                    ~agents.df_population['inf_rabies'] & \
+                    ~agents.df_population['con_rabies']
         intervention.apply_vaccine_from_dict(my_graph, dict_vaccine, condition=condition)
 
     agents.tick()
