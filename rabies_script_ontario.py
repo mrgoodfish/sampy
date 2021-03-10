@@ -70,7 +70,7 @@ for i in range(nb_year_simu * 52 + 1):
 
     # rabies part
     arr_new_infected = rabies.contact_contagion(contact_propagation_proba, return_arr_new_infected=True)
-    rabies.initialize_counters_of_newly_infected(infected_agent,
+    rabies.initialize_counters_of_newly_infected(arr_new_infected,
                                                  np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]),
                                                  np.array([0.01, 0.05, 0.05, 0.1, 0.15, 0.2, 0.15, 0.1, 0.05,
                                                            0.05, 0.05, 0.02, 0.01, 0.01]))
