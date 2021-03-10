@@ -115,8 +115,8 @@ for i in range(nb_year_simu * 52 + 1):
                                np.array([0, 1, 2, 3, 4, 5, 6]),
                                np.array([92.3, 3.06, 1., 0.9, 0.4, 0.7, 0.73]) / 100.)
 
-racoons.save_population_to_csv('C:/Users/Emily/Documents/Leighton_Research/Rabies_work/Francois_python_help/Feb25_2021/sampy_master_EAEdits/Feb25_2021_test.csv', sep=';')
-counts_to_csv(list_yearly_count, my_graph, 'C:/Users/Emily/Documents/Leighton_Research/Rabies_work/Francois_python_help/Feb25_2021/sampy_master_EAEdits/Feb25_2021_pop_per_cell.csv', sep=';')
+racoons.save_population_to_csv('C:/post_doc/data/output_sim/emily/ontario_project/pop.csv', sep=';')
+# counts_to_csv(list_yearly_count, my_graph, 'C:/Users/Emily/Documents/Leighton_Research/Rabies_work/Francois_python_help/Feb25_2021/sampy_master_EAEdits/Feb25_2021_pop_per_cell.csv', sep=';')
 # counts_to_csv(list_count_female, my_graph, 'C:/Users/Emily/Documents/Leighton_Research/Rabies_work/Francois_python_help/Feb25_2021/sampy_master_EAEdits/Feb25_2021_female_per_cell.csv', sep=';')
 
 print(' --------- ')
