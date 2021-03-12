@@ -66,7 +66,6 @@ for i in range(nb_year_simu * 52 + 1):
     my_condition = racoons.df_population['age'] >= 20
     racoons.mortality_from_v08(np.array([0.6, .4, .3, .3, .3, .6, .6, .6]), my_condition,
                                position_attribute='territory')
-    racoons.kill_children_whose_mother_is_dead(20)
 
     # rabies part
     arr_new_infected = rabies.contact_contagion(contact_propagation_proba, return_arr_new_infected=True,
@@ -82,6 +81,8 @@ for i in range(nb_year_simu * 52 + 1):
     rabies.transition_between_states('con', 'imm')
     rabies.transition_between_states('inf', 'con', arr_nb_timestep=np.array([1]),
                                      arr_prob_nb_timestep=np.array([1.]))
+
+    racoons.kill_children_whose_mother_is_dead(20)
 
     racoons.mov_around_territory(0.2)
 
